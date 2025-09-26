@@ -1,2 +1,4 @@
 tmp/
 config/*.local.yml
+*.pyc
+__pycache__/

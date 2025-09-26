@@ -4,10 +4,11 @@ import shlex, pathlib
 
 def build_john_cmd(hashfile_path, wordlist=None, fmt=None, extra_args=""):
     c = load().get("john", {})
-    wordlist = wordlist or c.get("default_wordlist")
-    fmt = fmt or c.get("default_format")
-    args = f"john --wordlist={shlex.quote(wordlist)} --format={shlex.quote(fmt)} {extra_args} {shlex.quote(str(hashfile_path))}"
-    return args
+    wordlist = wordlist or c.get("default_wordlist","")
+    fmt = fmt or c.get("default_format","")
+    # keep extra limited
+    safe_extra = " ".join([shlex.quote(p) for p in shlex.split(extra_args) if len(p) < 32])
+    return f"john --wordlist={shlex.quote(wordlist)} --format={shlex.quote(fmt)} {safe_extra} {shlex.quote(str(hashfile_path))}".strip()
 
 def run_john(hashfile_path, wordlist=None, fmt=None, timeout=None, extra_args=""):
     cfg = load().get("john", {})

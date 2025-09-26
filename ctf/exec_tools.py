@@ -1,11 +1,10 @@
-import shlex, subprocess, threading
+import shlex, subprocess, threading, tempfile, os
 
 def run_cmd(cmd, timeout=30, cwd=None, env=None, max_output=200000):
     """
-    Run an external command safely with timeout, output caps, and basic sanitization.
-    Returns: dict {ok, returncode, stdout, stderr, timed_out}
+    Run an external command safely with timeout and output caps.
+    Returns dict {ok, returncode, stdout, stderr, timed_out}
     """
-    # sanitize -> accept either list or string
     if isinstance(cmd, str):
         cmd = shlex.split(cmd)
     try:

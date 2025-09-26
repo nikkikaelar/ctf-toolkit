@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>CTF Toolkit — MVP</title>
+  <style>
+    :root{--sidebar-w:220px}
+    body{font-family:Inter,system-ui,Segoe UI,Arial;background:#f7f8fb;margin:0}
+    .sidebar{width:var(--sidebar-w);position:fixed;left:0;top:0;bottom:0;background:#2f3640;color:#fff;padding:16px}
+    .main{margin-left:var(--sidebar-w);padding:24px}
+    .card{background:#fff;padding:18px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.06);margin-bottom:12px}
+    .icon{width:24px;height:24px;vertical-align:middle;margin-right:8px}
+    .tool-row{display:flex;align-items:center;padding:8px 4px;cursor:pointer}
+    .tool-row:hover{background:rgba(255,255,255,0.03)}
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h3>CTF Toolkit</h3>
+    <div class="tool-row"><img class="icon" src="icons/forensics.svg"> Forensics</div>
+    <div class="tool-row"><img class="icon" src="icons/recon.svg"> Recon</div>
+    <div class="tool-row"><img class="icon" src="icons/network.svg"> Network</div>
+    <div class="tool-row"><img class="icon" src="icons/password.svg"> Passwords</div>
+    <div class="tool-row"><img class="icon" src="icons/templates.svg"> Templates</div>
+    <div class="tool-row"><img class="icon" src="icons/playground.svg"> Playground</div>
+    <div style="position:absolute;bottom:16px;left:16px;font-size:12px;color:#cbd3db">Lab Mode: off</div>
+  </div>
+  <div class="main">
+    <div class="card"><h2>Overview</h2><p>Welcome — use the sidebar to pick a tool.</p></div>
+    <div class="card">
+      <h3>Nmap Builder (dry-run)</h3>
+      <input id="n_target" placeholder="target (ip/cidr)" style="width:300px">
+      <select id="n_preset"><option>quick</option><option>full</option></select>
+      <input id="n_extra" placeholder="extra args">
+      <button onclick="nmapRun()">Build</button>
+      <pre id="nmap_out"></pre>
+    </div>
+  </div>
+
+  <script>
+  async function api(path, body){
+    const res = await fetch(path, {method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify(body)});
+    return res.json();
+  }
+  async function nmapRun(){
+    const t = document.getElementById("n_target").value;
+    const p = document.getElementById("n_preset").value;
+    const e = document.getElementById("n_extra").value;
+    const r = await api("/api/run/nmap", {target:t,preset:p,extra:e,dry_run:true});
+    document.getElementById("nmap_out").textContent = JSON.stringify(r, null, 2);
+  }
+  </script>
+</body>
+</html>

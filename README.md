@@ -1,4 +1,6 @@
-# CTF Toolkit
+# CTF Toolkit — Educational Dashboard (MVP)
+
+**Purpose**: Educational toolkit for offline/lab CTF practice. DO NOT use this software to scan or attack systems without explicit written permission.
 
 Minimal Capture-the-Flag (CTF) assistant — a lightweight toolkit for quickly analyzing challenge data, decoding common encodings, and spotting hidden patterns. Designed for speed during competitions and clarity for learning, it gives you:
 
@@ -7,6 +9,7 @@ Automatic detection of common encodings (hex, base64, ROT13, etc.)
 Entropy analysis and keyword spotting to hint at suspicious strings
 Pattern finders for flags, keys, and other CTF artifacts
 A modular design so you can extend it with your own analyzers
+External tool integration with safety controls
 +more to be added
 
 ---
@@ -21,20 +24,30 @@ A modular design so you can extend it with your own analyzers
 
 ---
 
-## Quickstart
+## Quickstart (local, isolated VM)
 
-Clone and install dependencies:
-```bash
-git clone https://github.com/nikkikaelar/ctf-toolkit.git
-cd ctf-toolkit
-pip install -r requirements.txt
-```
+1. Install dependencies: `pip install -r requirements.txt`
+2. Start the backend: `uvicorn backend.app:app --reload --port 8080`
+3. Open `frontend/index.html` in a browser and use dry-run options by default.
+
+**Safety & Legal Notice**
+- Runs that actually execute scanners are disabled by default (dry-run). To run live scans you must:
+  - Enable Lab Mode in settings (manual config change).
+  - Run inside an isolated VM / lab network.
+  - Ensure you own or have permission for every target.
+
+**Admin checklist**
+- Do not enable live network scans on public or multi-tenant hosts.
+- Enable containerized sandboxing before running active tools.
 ---
 
 File Layout:
 ```
 ctf-toolkit/
-├─ app.py                # Flask app entry
+├─ backend/              # FastAPI backend
+│  └─ app.py
+├─ frontend/             # Static frontend
+│  └─ index.html
 ├─ requirements.txt      # Python dependencies
 ├─ config/               # tool configuration
 │  └─ tools.yml
@@ -43,16 +56,20 @@ ctf-toolkit/
 │  ├─ tasks.py
 │  ├─ exec_tools.py      # safe subprocess wrapper
 │  ├─ config.py          # config loader
-│  └─ tools/             # external tool wrappers
-│     ├─ nmap.py
-│     ├─ john.py
-│     └─ _validate.py
-├─ templates/            # HTML templates
+│  ├─ tools/             # external tool wrappers
+│  │  ├─ nmap.py
+│  │  └─ john.py
+│  ├─ analyzers/         # pure Python analyzers
+│  │  └─ decoders.py
+│  └─ templates/         # template generators
+│     └─ metasploit.py
+├─ templates/            # Legacy Flask templates
 │  └─ index.html
 ├─ static/               # CSS and assets
 │  └─ style.css
 ├─ tests/                # unit tests
-│  └─ test_tools.py
+│  ├─ test_tools.py
+│  └─ test_decoders.py
 └─ README.md
 ```
 
