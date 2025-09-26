@@ -1,0 +1,12 @@
+nmap:
+  default_args: "-sC -sV -T4"
+  port_presets:
+    quick: "1-1024"
+    full: "1-65535"
+  max_runtime: 120
+john:
+  default_wordlist: "/usr/share/wordlists/rockyou.txt"
+  default_format: "raw-md5"
+  max_runtime: 3600
+  incremental_masks:
+    default: "?l?l?l?l?l"

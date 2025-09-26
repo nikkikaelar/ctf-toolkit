@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" href="/static/style.css" />
+<title>CTF Toolkit</title>
+</head>
+<body>
+<div class="frame">
+  <header><div class="meta">CTF TOOLKIT</div><div class="meta right">PAGE 1/1</div></header>
+  <main>
+    <section class="panel">
+      <label>INPUT</label>
+      <textarea id="input" placeholder="paste challenge text"></textarea>
+      <div class="row">
+        <button onclick="analyze()">ANALYZE</button>
+        <button onclick="decode('auto')">DECODE</button>
+        <button onclick="find()">FIND</button>
+      </div>
+    </section>
+    <section class="panel">
+      <label>OUTPUT</label>
+      <pre id="out">ready</pre>
+    </section>
+  </main>
+  <main>
+    <section class="panel">
+      <label>NMAP SCAN</label>
+      <input id="nmap_target" placeholder="host or cidr" style="width:100%;margin-bottom:8px;background:#000;color:#cfcfcf;border:1px solid #111;padding:8px;">
+      <div class="row">
+        <select id="nmap_preset" style="background:#000;color:#cfcfcf;border:1px solid #111;padding:8px;">
+          <option value="quick">quick</option>
+          <option value="full">full</option>
+        </select>
+        <input id="nmap_extra" placeholder="extra args (e.g. -sS)" style="flex:1;background:#000;color:#cfcfcf;border:1px solid #111;padding:8px;">
+        <button onclick="runNmap()">RUN NMAP</button>
+      </div>
+    </section>
+    <section class="panel">
+      <label>JOHN CRACKER</label>
+      <input type="file" id="john_file" style="width:100%;margin-bottom:8px;background:#000;color:#cfcfcf;border:1px solid #111;padding:8px;">
+      <div class="row">
+        <input id="john_wordlist" placeholder="wordlist path" style="flex:1;background:#000;color:#cfcfcf;border:1px solid #111;padding:8px;">
+        <input id="john_format" placeholder="format" style="flex:1;background:#000;color:#cfcfcf;border:1px solid #111;padding:8px;">
+        <button onclick="runJohn()">RUN JOHN</button>
+      </div>
+    </section>
+  </main>
+  <footer><small>MINIMAL • MONO • DOT-MATRIX</small></footer>
+</div>
+<script>
+async function api(path, body){
+  const r = await fetch(path, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+  return r.json();
+}
+async function analyze(){
+  const data = document.getElementById("input").value;
+  const r = await api("/api/analyze", {data});
+  document.getElementById("out").textContent = JSON.stringify(r, null, 2);
+}
+async function decode(type){
+  const data = document.getElementById("input").value;
+  const r = await api("/api/decode", {data, type});
+  document.getElementById("out").textContent = r.out || "";
+}
+async function find(){
+  const data = document.getElementById("input").value;
+  const r = await api("/api/find", {data});
+  document.getElementById("out").textContent = JSON.stringify(r.matches || [], null, 2);
+}
+async function runNmap(){
+  const target = document.getElementById("nmap_target").value;
+  const preset = document.getElementById("nmap_preset").value;
+  const extra = document.getElementById("nmap_extra").value;
+  const r = await api("/api/run/nmap",{target,preset,extra});
+  console.log(r); 
+  document.getElementById("out").textContent = JSON.stringify(r,null,2);
+}
+async function runJohn(){
+  const fileInput = document.getElementById("john_file");
+  const wordlist = document.getElementById("john_wordlist").value;
+  const format = document.getElementById("john_format").value;
+  
+  if (!fileInput.files[0]) {
+    document.getElementById("out").textContent = "Please select a hash file";
+    return;
+  }
+  
+  // Upload file first
+  const formData = new FormData();
+  formData.append("file", fileInput.files[0]);
+  const uploadRes = await fetch("/api/upload/hashfile", {method:"POST", body:formData});
+  const uploadData = await uploadRes.json();
+  
+  if (!uploadData.ok) {
+    document.getElementById("out").textContent = "Upload failed: " + uploadData.error;
+    return;
+  }
+  
+  // Run john with uploaded file
+  const r = await api("/api/run/john", {
+    hashfile_path: uploadData.path,
+    wordlist: wordlist || undefined,
+    format: format || undefined
+  });
+  document.getElementById("out").textContent = JSON.stringify(r,null,2);
+}
+</script>
+</body>
+</html>
