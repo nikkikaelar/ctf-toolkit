@@ -1,4 +1,4 @@
-# CTF Toolkit — Educational Dashboard (MVP)
+# GEARBOX — Educational Dashboard (MVP)
 
 **Purpose**: Educational toolkit for offline/lab CTF practice. DO NOT use this software to scan or attack systems without explicit written permission.
 

@@ -1,0 +1,17 @@
+# Example candidate passwords for testing
+# These are common password variations for lab simulation
+
+password
+password123
+Password123
+p@ssw0rd
+admin
+admin123
+test
+test123
+user
+user123
+qwerty
+letmein
+secure
+secure123

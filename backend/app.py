@@ -6,7 +6,7 @@ from ctf.tools import nmap as nmap_tool, john as john_tool
 from ctf.exec_tools import run_cmd
 import pathlib, uuid, shutil
 
-app = FastAPI(title="CTF Toolkit (safe MVP)")
+app = FastAPI(title="GEARBOX (safe MVP)")
 
 UPLOAD_DIR = pathlib.Path("tmp/uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
